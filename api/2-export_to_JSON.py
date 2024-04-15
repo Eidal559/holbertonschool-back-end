@@ -1,36 +1,37 @@
 #!/usr/bin/python3
-"""
-Module documentation for task 2 about retrieve json
-"""
-
-from sys import argv
-from json import dump
-from requests import get
-
-url_base = 'https://jsonplaceholder.typicode.com/users/'
+"""Script to use a REST API for a given employee ID, returns
+information about his/her TODO list progress and export in JSON"""
+import json
+import requests
+import sys
 
 
-def export_json(id):
-    """ function that retrieve data in format json """
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print(f"UsageError: python3 {__file__} employee_id(int)")
+        sys.exit(1)
 
-    file_name = str(id) + '.json'
-    usr = get(url_base + str(id)).json()
-    todos = get(url_base + str(id) + '/todos/').json()
-    items_data = []
-    retrieve_json = dict()
+    API_URL = "https://jsonplaceholder.typicode.com"
+    EMPLOYEE_ID = sys.argv[1]
 
-    for todo in todos:
-        item_dict = dict()
-        item_dict['task'] = todo['title']
-        item_dict['completed'] = todo['completed']
-        item_dict['username'] = usr['username']
-        items_data.append(item_dict)
+    response = requests.get(
+        f"{API_URL}/users/{EMPLOYEE_ID}/todos",
+        params={"_expand": "user"}
+    )
+    data = response.json()
 
-    retrieve_json[str(id)] = items_data
+    if not len(data):
+        print("RequestError:", 404)
+        sys.exit(1)
 
-    with open(file_name, 'w', encoding='utf-8') as file_json:
-        dump(retrieve_json, file_json)
+    user_tasks = {EMPLOYEE_ID: []}
+    for task in data:
+        task_dict = {
+            "task": task["title"],
+            "completed": task["completed"],
+            "username": task["user"]["username"]
+        }
+        user_tasks[EMPLOYEE_ID].append(task_dict)
 
-
-if __name__ == '__main__':
-    export_json(int(argv[1]))
+    with open(f"{EMPLOYEE_ID}.json", "w") as file:
+        json.dump(user_tasks, file)

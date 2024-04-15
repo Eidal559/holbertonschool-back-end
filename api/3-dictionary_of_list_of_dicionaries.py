@@ -1,37 +1,27 @@
 #!/usr/bin/python3
-"""
-Module documentation for a retrieve data in JSON format
-"""
-
-from sys import argv
-from requests import get
-from json import dump
-
-url_base = 'https://jsonplaceholder.typicode.com/users/'
+"""Script to use a REST API, returns information about
+all tasks from all employees and export in JSON"""
+import json
+import requests
 
 
-def dict_of_the_dict():
-    """s"""
-    users = get(url_base).json()
-    retrieve_json = dict()
+if __name__ == "__main__":
+    API_URL = "https://jsonplaceholder.typicode.com"
 
+    users = requests.get(f"{API_URL}/users").json()
+
+    dict_users_tasks = {}
     for user in users:
-        usr_id = user['id']
-        item_data = []
-        task_users = get(url_base + str(usr_id) + '/todos/').json()
+        tasks = requests.get(f"{API_URL}/users/{user['id']}/todos").json()
 
-        for todo in task_users:
-            item_dict = {
-                'task': todo['title'],
-                'completed': todo['completed'],
-                'username': user['username']
+        dict_users_tasks[user["id"]] = []
+        for task in tasks:
+            task_dict = {
+                "username": user["username"],
+                "task": task["title"],
+                "completed": task["completed"]
             }
-            item_data.append(item_dict)
-        retrieve_json[usr_id] = item_data
+            dict_users_tasks[user["id"]].append(task_dict)
 
-    with open('todo_all_employees.json', 'w', encoding='utf-8') as file_json:
-        dump(retrieve_json, file_json)
-
-
-if __name__ == '__main__':
-    dict_of_the_dict()
+    with open("todo_all_employees.json", "w") as file:
+        json.dump(dict_users_tasks, file)
