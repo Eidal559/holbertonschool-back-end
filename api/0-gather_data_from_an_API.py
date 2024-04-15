@@ -1,52 +1,30 @@
 #!/usr/bin/python3
+"""
+Module for task0 about request and API
+"""
+
 import requests
-import sys
+from sys import argv
+
+url_base = 'https://jsonplaceholder.typicode.com/users/'
 
 
-def get_employee_todo_progress(employee_id):
-    # Base URL for the API
-    base_url = 'https://jsonplaceholder.typicode.com/'
+def get_data():
+    """ This function get data of the placeholders API """
+    name = requests.get(url_base + argv[1]).json()
+    todos = requests.get(url_base + argv[1] + '/todos/').json()
+    count = 0
+    title = ""
 
-    # Fetch employee's user data
-    user_url = f'{base_url}users/{employee_id}'
-    user_response = requests.get(user_url)
-    
-    if user_response.status_code != 200:
-        print(f'Error: Unable to fetch data for employee ID {employee_id}')
-        return
-    
-    user_data = user_response.json()
-    employee_name = user_data['name']
+    for item in todos:
+        if item['completed'] is True:
+            title += "\t {}\n".format(item['title'])
+            count += 1
 
-    # Fetch employee's TODO list data
-    todos_url = f'{base_url}todos?userId={employee_id}'
-    todos_response = requests.get(todos_url)
-    
-    if todos_response.status_code != 200:
-        print(f'Error: Unable to fetch TODO list for employee ID {employee_id}')
-        return
-
-    todos_data = todos_response.json()
-    
-    # Calculate the total and completed tasks
-    total_tasks = len(todos_data)
-    completed_tasks = [task for task in todos_data if task['completed']]
-    number_of_done_tasks = len(completed_tasks)
-
-    # Print the output as specified
-    print(f'Employee {employee_name} is done with tasks({number_of_done_tasks}/{total_tasks}):')
-    for task in completed_tasks:
-        print(f'\t {task["title"]}')
+    print("Employee {} is done with tasks({}/20):\n{}".format(name['name'],
+                                                              count, title),
+          end='')
 
 
 if __name__ == '__main__':
-    # Ensure that an employee ID is provided as an argument
-    if len(sys.argv) != 2:
-        print("Usage: python script.py <employee_id>")
-        sys.exit(1)
-    
-    # Get the employee ID from the command line arguments
-    employee_id = int(sys.argv[1])
-
-    # Call the function to get the employee's TODO list progress
-    get_employee_todo_progress(employee_id)
+    get_data()
