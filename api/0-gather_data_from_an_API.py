@@ -2,6 +2,7 @@
 import requests
 import sys
 
+
 def get_employee_todo_progress(employee_id):
     # Base URL for the API
     base_url = 'https://jsonplaceholder.typicode.com/'
@@ -36,6 +37,7 @@ def get_employee_todo_progress(employee_id):
     print(f'Employee {employee_name} is done with tasks({number_of_done_tasks}/{total_tasks}):')
     for task in completed_tasks:
         print(f'\t {task["title"]}')
+
 
 if __name__ == '__main__':
     # Ensure that an employee ID is provided as an argument
