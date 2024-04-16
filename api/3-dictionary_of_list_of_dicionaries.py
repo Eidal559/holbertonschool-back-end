@@ -60,8 +60,7 @@ def main() -> None:
     # Export data to JSON file
     export_to_json(all_tasks_data, "todo_all_employees.json")
 
-
-print("Data exported to todo_all_employees.json")
+    print("Data exported to todo_all_employees.json")
 
 
 if __name__ == "__main__":
